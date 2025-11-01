@@ -7,11 +7,9 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 
 app = FastAPI(
-    title="PDF Text Overlay & Merge API",
-    description="API para adicionar texto na capa e mesclar PDFs usando Python (pypdf e reportlab)."
+    title="PDF API",
+    description="API para adicionar texto na capa de um PDF usando Python (pypdf e reportlab)."
 )
-
-# --- Lógica de Adicionar Texto (Endpoint /process-pdf/) ---
 
 def add_text_to_pdf_logic(pdf_bytes: bytes, text_to_add: str) -> bytes:
     """
@@ -90,53 +88,6 @@ async def process_pdf(
         media_type="application/pdf",
         headers={
             "Content-Disposition": f"attachment; filename=modified_{pdf_file.filename}"
-        }
-    )
-
-# --- Novo Endpoint de Mesclagem de PDF (Endpoint /merge-pdfs/) ---
-
-@app.post("/merge-pdfs/")
-async def merge_pdfs(
-    pdf_file_1: UploadFile = File(..., description="O primeiro arquivo PDF."),
-    pdf_file_2: UploadFile = File(..., description="O segundo arquivo PDF."),
-):
-    """
-    Recebe dois arquivos PDF e retorna um único arquivo PDF mesclado.
-    """
-    
-    # 1. Ler o conteúdo dos arquivos PDF
-    try:
-        pdf_bytes_1 = await pdf_file_1.read()
-        pdf_bytes_2 = await pdf_file_2.read()
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Erro ao ler os arquivos PDF: {e}")
-
-    # 2. Mesclar os PDFs
-    try:
-        merger = PdfFileMerger() # <--- MUDANÇA AQUI
-        
-        # Anexar o primeiro PDF
-        merger.append(io.BytesIO(pdf_bytes_1))
-        
-        # Anexar o segundo PDF
-        merger.append(io.BytesIO(pdf_bytes_2))
-        
-        # Salvar o PDF mesclado em um buffer de bytes
-        output_buffer = io.BytesIO()
-        merger.write(output_buffer)
-        output_buffer.seek(0)
-        
-        modified_pdf_bytes = output_buffer.getvalue()
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro interno ao mesclar os PDFs: {e}")
-
-    # 3. Retornar o PDF mesclado como um StreamingResponse
-    return StreamingResponse(
-        io.BytesIO(modified_pdf_bytes),
-        media_type="application/pdf",
-        headers={
-            "Content-Disposition": f"attachment; filename=merged_document.pdf"
         }
     )
 
