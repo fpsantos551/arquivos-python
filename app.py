@@ -1,0 +1,97 @@
+import io
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException
+from fastapi.responses import StreamingResponse
+from pypdf import PdfReader, PdfWriter
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
+
+app = FastAPI(
+    title="PDF Text Overlay API",
+    description="API para adicionar texto na capa de um PDF usando Python (pypdf e reportlab)."
+)
+
+def add_text_to_pdf_logic(pdf_bytes: bytes, text_to_add: str) -> bytes:
+    """
+    Lógica central para adicionar texto ao PDF.
+    """
+    # 1. Criar um PDF temporário (overlay) com o texto usando ReportLab
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    
+    # Configurações de texto
+    can.setFont("Helvetica-Bold", 36)
+    
+    # Coordenadas para o topo da página (ajustar conforme necessário)
+    x_center = letter[0] / 2
+    y_top = letter[1] - 0.75 * inch 
+    
+    # Centralizar o texto no topo
+    can.drawCentredString(x_center, y_top, text_to_add)
+    
+    can.save()
+    
+    # Mover o ponteiro do BytesIO para o início para leitura
+    packet.seek(0)
+    new_pdf = PdfReader(packet)
+    
+    # 2. Ler o PDF original
+    existing_pdf = PdfReader(io.BytesIO(pdf_bytes))
+    output = PdfWriter()
+    
+    # 3. Aplicar o overlay na primeira página (capa)
+    if not existing_pdf.pages:
+        raise ValueError("O PDF original não contém páginas.")
+        
+    page = existing_pdf.pages[0]
+    page.merge_page(new_pdf.pages[0])
+    output.add_page(page)
+    
+    # 4. Adicionar as páginas restantes
+    for i in range(1, len(existing_pdf.pages)):
+        output.add_page(existing_pdf.pages[i])
+        
+    # 5. Salvar o PDF modificado em um buffer de bytes
+    output_buffer = io.BytesIO()
+    output.write(output_buffer)
+    output_buffer.seek(0)
+    
+    # 6. Retornar o PDF modificado como bytes
+    return output_buffer.getvalue()
+
+@app.post("/process-pdf/")
+async def process_pdf(
+    pdf_file: UploadFile = File(..., description="O arquivo PDF original."),
+    name: str = Form(..., description="O nome a ser escrito na capa do PDF.")
+):
+    """
+    Recebe um arquivo PDF e um nome, adiciona o nome na capa do PDF e retorna o arquivo modificado.
+    """
+    
+    # 1. Ler o conteúdo do arquivo PDF
+    try:
+        pdf_bytes = await pdf_file.read()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Erro ao ler o arquivo PDF: {e}")
+
+    # 2. Processar o PDF
+    try:
+        modified_pdf_bytes = add_text_to_pdf_logic(pdf_bytes, name)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro interno ao processar o PDF: {e}")
+
+    # 3. Retornar o PDF modificado como um StreamingResponse
+    return StreamingResponse(
+        io.BytesIO(modified_pdf_bytes),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"attachment; filename=modified_{pdf_file.filename}"
+        }
+    )
+
+# Endpoint de saúde para verificar se a API está funcionando
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "message": "PDF Processor API is running"}
