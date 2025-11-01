@@ -2,34 +2,14 @@ import io
 from datetime import datetime
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.responses import StreamingResponse
+from pypdf import PdfReader, PdfWriter # <--- Simplificado
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 
-# --- Importações de PDF (Com Fallback para Mesclagem) ---
-try:
-    from pypdf import PdfReader, PdfWriter, PdfMerger
-except ImportError:
-    # Fallback para PyPDF2 ou versão antiga
-    try:
-        from pypdf import PdfReader, PdfWriter
-        from PyPDF2 import PdfFileMerger as PdfMerger # Alias para compatibilidade
-    except ImportError:
-        # Se tudo falhar, usamos uma classe dummy para evitar que a aplicação quebre na inicialização
-        class DummyPdfMerger:
-            def __init__(self): pass
-            def append(self, *args): pass
-            def write(self, *args): pass
-            def close(self): pass
-        PdfMerger = DummyPdfMerger
-        PdfReader = object
-        PdfWriter = object
-        print("AVISO: Bibliotecas de PDF não puderam ser importadas corretamente. Endpoints de PDF podem falhar.")
-
-
 app = FastAPI(
-    title="PDF Text Overlay & Merge API",
-    description="API para adicionar texto na capa, mesclar e gerar PDFs."
+    title="PDF Text Overlay API",
+    description="API para adicionar texto na capa."
 )
 
 # --- Lógica de Adicionar Texto (Endpoint /process-pdf/) ---
@@ -132,6 +112,7 @@ async def process_pdf(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        # Captura o erro e o detalha para o usuário
         raise HTTPException(status_code=500, detail=f"Erro interno ao processar o PDF: {e}")
 
     # 3. Retornar o PDF modificado como um StreamingResponse
@@ -140,53 +121,6 @@ async def process_pdf(
         media_type="application/pdf",
         headers={
             "Content-Disposition": f"attachment; filename=modified_{pdf_file.filename}"
-        }
-    )
-
-# --- Lógica de Mesclagem (Endpoint /merge-pdfs/) ---
-
-@app.post("/merge-pdfs/")
-async def merge_pdfs(
-    pdf_file_1: UploadFile = File(..., description="O primeiro arquivo PDF."),
-    pdf_file_2: UploadFile = File(..., description="O segundo arquivo PDF."),
-):
-    """
-    Recebe dois arquivos PDF e retorna um único arquivo PDF mesclado.
-    """
-    
-    # 1. Ler o conteúdo dos arquivos PDF
-    try:
-        pdf_bytes_1 = await pdf_file_1.read()
-        pdf_bytes_2 = await pdf_file_2.read()
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Erro ao ler os arquivos PDF: {e}")
-
-    # 2. Mesclar os PDFs
-    try:
-        merger = PdfMerger()
-        
-        # Anexar o primeiro PDF
-        merger.append(io.BytesIO(pdf_bytes_1))
-        
-        # Anexar o segundo PDF
-        merger.append(io.BytesIO(pdf_bytes_2))
-        
-        # Salvar o PDF mesclado em um buffer de bytes
-        output_buffer = io.BytesIO()
-        merger.write(output_buffer)
-        output_buffer.seek(0)
-        
-        modified_pdf_bytes = output_buffer.getvalue()
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro interno ao mesclar os PDFs: {e}")
-
-    # 3. Retornar o PDF mesclado como um StreamingResponse
-    return StreamingResponse(
-        io.BytesIO(modified_pdf_bytes),
-        media_type="application/pdf",
-        headers={
-            "Content-Disposition": f"attachment; filename=merged_document.pdf"
         }
     )
 
