@@ -2,15 +2,17 @@ import io
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.responses import StreamingResponse
 from pypdf import PdfReader, PdfWriter
+from pypdf.merger import PdfMerger # <--- CORREÇÃO AQUI
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
-from pypdf import PdfMerger
 
 app = FastAPI(
-    title="PDF Text Overlay API",
-    description="API para adicionar texto na capa de um PDF usando Python (pypdf e reportlab)."
+    title="PDF Text Overlay & Merge API",
+    description="API para adicionar texto na capa e mesclar PDFs usando Python (pypdf e reportlab)."
 )
+
+# --- Lógica de Adicionar Texto (Endpoint /process-pdf/) ---
 
 def add_text_to_pdf_logic(pdf_bytes: bytes, text_to_add: str) -> bytes:
     """
@@ -92,10 +94,7 @@ async def process_pdf(
         }
     )
 
-# Endpoint de saúde para verificar se a API está funcionando
-@app.get("/health")
-def health_check():
-    return {"status": "ok", "message": "PDF Processor API is running"}
+# --- Novo Endpoint de Mesclagem de PDF (Endpoint /merge-pdfs/) ---
 
 @app.post("/merge-pdfs/")
 async def merge_pdfs(
@@ -141,3 +140,8 @@ async def merge_pdfs(
             "Content-Disposition": f"attachment; filename=merged_document.pdf"
         }
     )
+
+# Endpoint de saúde para verificar se a API está funcionando
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "message": "PDF Processor API is running"}
