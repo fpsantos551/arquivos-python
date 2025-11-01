@@ -1,7 +1,7 @@
 import io
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.responses import StreamingResponse
-from pypdf import PdfReader, PdfWriter, PdfFileMerger # <--- CORREÇÃO FINAL
+from pypdf import PdfReader, PdfWriter, PdfMerger
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
