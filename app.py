@@ -1,8 +1,7 @@
 import io
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.responses import StreamingResponse
-from pypdf import PdfReader, PdfWriter
-from pypdf.merger import PdfMerger # <--- CORREÇÃO AQUI
+from pypdf import PdfReader, PdfWriter, PdfFileMerger # <--- CORREÇÃO FINAL
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
@@ -114,7 +113,7 @@ async def merge_pdfs(
 
     # 2. Mesclar os PDFs
     try:
-        merger = PdfMerger()
+        merger = PdfFileMerger() # <--- MUDANÇA AQUI
         
         # Anexar o primeiro PDF
         merger.append(io.BytesIO(pdf_bytes_1))
