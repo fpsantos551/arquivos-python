@@ -2,10 +2,11 @@ import io
 from datetime import datetime
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.responses import StreamingResponse
-from pypdf import PdfReader, PdfWriter # <--- Simplificado
+from pypdf import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
+import pytz # Necessário para o fuso horário
 
 app = FastAPI(
     title="PDF Text Overlay API",
@@ -25,8 +26,14 @@ def add_text_to_pdf_logic(pdf_bytes: bytes, nome: str, telefone: str) -> bytes:
     
     # Coordenadas iniciais (começando do topo)
     x_margin = inch
-    y_position = letter[1] - inch # Começa 1 polegada do topo
-    data_atual = datetime.now().strftime("%d/%m/%Y")
+    # --- ALTERAÇÃO DE POSIÇÃO AQUI ---
+    y_position = letter[1] - 0.5 * inch # Começa 0.5 polegada do topo (mais para cima)
+    # ----------------------------------
+    
+    # Fuso Horário de São Paulo
+    fuso_sp = pytz.timezone('America/Sao_Paulo')
+    data_sp = datetime.now(fuso_sp)
+    data_atual = data_sp.strftime("%d/%m/%Y")
     
     # --- Conteúdo Formatado ---
     
