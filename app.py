@@ -27,7 +27,7 @@ def add_text_to_pdf_logic(pdf_bytes: bytes, nome: str, telefone: str) -> bytes:
     # Coordenadas iniciais (começando do topo)
     x_margin = inch
     # --- ALTERAÇÃO DE POSIÇÃO AQUI ---
-    y_position = letter[1] - 0.90 * inch # Começa 0.5 polegada do topo (mais para cima)
+    y_position = letter[1] - 0.10 * inch # Começa 0.5 polegada do topo (mais para cima)
     # ----------------------------------
     
     # Fuso Horário de São Paulo
