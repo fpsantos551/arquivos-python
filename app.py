@@ -45,7 +45,7 @@ def add_text_to_pdf_logic(pdf_bytes: bytes, nome: str, telefone: str) -> bytes:
     y_position -= 0.25 * inch
     can.drawString(x_margin, y_position, "Mapa da Cascata Hormonal e Nível de Estresse Endócrino")
     
-    y_position -= 0.25 * inch # Espaço
+    y_position -= 0.4 * inch # Espaço
     
     # Informações Dinâmicas (Normal)
     can.setFont("Helvetica", 10)
@@ -57,7 +57,7 @@ def add_text_to_pdf_logic(pdf_bytes: bytes, nome: str, telefone: str) -> bytes:
     y_position -= 0.2 * inch
     can.drawString(x_margin, y_position, "Tipo de Avaliação: Pré-Diagnóstico de Cascata Hormonal")
     
-    y_position -= 0.5 * inch # Espaço
+    y_position -= 0.4 * inch # Espaço
     
     # Linha Confidencial (Itálico e Menor)
     can.setFont("Helvetica-Oblique", 9) # Helvetica-Oblique para itálico
