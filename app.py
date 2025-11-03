@@ -38,7 +38,7 @@ def add_text_to_pdf_logic(pdf_bytes: bytes, nome: str, telefone: str) -> bytes:
     # --- Conteúdo Formatado ---
     
     # Título Principal (Negrito e Maior)
-    can.setFont("Helvetica-Bold", 16)
+    can.setFont("Helvetica-Bold", 14)
     can.drawString(x_margin, y_position, "🧬 Instituto Vitalis de Saúde Feminina")
     y_position -= 0.25 * inch
     can.drawString(x_margin, y_position, "Diagnóstico Hormonal Personalizado")
@@ -48,7 +48,7 @@ def add_text_to_pdf_logic(pdf_bytes: bytes, nome: str, telefone: str) -> bytes:
     y_position -= 0.5 * inch # Espaço
     
     # Informações Dinâmicas (Normal)
-    can.setFont("Helvetica", 14)
+    can.setFont("Helvetica", 12)
     can.drawString(x_margin, y_position, f"Nome: {nome}")
     y_position -= 0.2 * inch
     can.drawString(x_margin, y_position, f"Telefone: {telefone}")
