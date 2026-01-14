@@ -49,11 +49,11 @@ def add_text_to_pdf_logic(pdf_bytes: bytes, nome: str, telefone: str) -> bytes:
     
     # Informações Dinâmicas (Normal)
     can.setFont("Helvetica", 10)
-    can.drawString(x_margin, y_position, f"Nome: {nome}")
+    can.drawString(x_margin, y_position, f"Nombre: {nome}")
     y_position -= 0.2 * inch
-    can.drawString(x_margin, y_position, f"Telefone: {telefone}")
+    can.drawString(x_margin, y_position, f"Telefono: {telefone}")
     y_position -= 0.2 * inch
-    can.drawString(x_margin, y_position, f"Data: {data_atual}")
+    can.drawString(x_margin, y_position, f"Fecha: {data_atual}")
     y_position -= 0.2 * inch
     can.drawString(x_margin, y_position, "Tipo de Evaluación: Prediagnóstico de Cascada Hormonal")
     
