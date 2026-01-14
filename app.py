@@ -39,11 +39,11 @@ def add_text_to_pdf_logic(pdf_bytes: bytes, nome: str, telefone: str) -> bytes:
     
     # Título Principal (Negrito e Maior)
     can.setFont("Helvetica-Bold", 12)
-    can.drawString(x_margin, y_position, "🧬 Instituto Vitalis de Saúde Feminina")
+    can.drawString(x_margin, y_position, "🧬 Instituto Vitalis de Salud Femenina")
     y_position -= 0.25 * inch
     can.drawString(x_margin, y_position, "Diagnóstico Hormonal Personalizado")
     y_position -= 0.25 * inch
-    can.drawString(x_margin, y_position, "Mapa da Cascata Hormonal e Nível de Estresse Endócrino")
+    can.drawString(x_margin, y_position, "Mapa de la Cascada Hormonal y Nivel de Estrés Endocrino")
     
     y_position -= 0.4 * inch # Espaço
     
@@ -55,13 +55,13 @@ def add_text_to_pdf_logic(pdf_bytes: bytes, nome: str, telefone: str) -> bytes:
     y_position -= 0.2 * inch
     can.drawString(x_margin, y_position, f"Data: {data_atual}")
     y_position -= 0.2 * inch
-    can.drawString(x_margin, y_position, "Tipo de Avaliação: Pré-Diagnóstico de Cascata Hormonal")
+    can.drawString(x_margin, y_position, "Tipo de Evaluación: Prediagnóstico de Cascada Hormonal")
     
     y_position -= 0.4 * inch # Espaço
     
     # Linha Confidencial (Itálico e Menor)
     can.setFont("Helvetica-Oblique", 9) # Helvetica-Oblique para itálico
-    can.drawString(x_margin, y_position, "Relatório confidencial preparado com base nas suas respostas ao questionário de equilíbrio hormonal.")
+    can.drawString(x_margin, y_position, "Informe confidencial preparado con base en sus respuestas al cuestionario de equilibrio hormonal.")
     
     # --- Fim do Overlay ---
     
